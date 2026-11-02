@@ -21,8 +21,14 @@ import type { Session } from '@supabase/supabase-js'
 import { useTranslation } from 'react-i18next'
 import { isSupabaseConfigured, supabase } from './lib/supabase'
 import { supportedLanguages, type Language } from './i18n'
-import { getPublicEntries, isCmsApiConfigured } from './lib/cms'
-import { makeFallbackEntries, useCmsEntries } from './lib/useCmsEntries'
+import {
+  getClientProducts,
+  getPublicEntries,
+  isCmsApiConfigured,
+  signInAdminWithUsername,
+  type ClientProduct,
+} from './lib/cms'
+import { makeFallbackEntries, useCmsEntries, useCmsEntriesWithStatus } from './lib/useCmsEntries'
 import './App.css'
 
 const CmsAdminPage = lazy(() => import('./CmsAdminPage'))
@@ -60,13 +66,17 @@ const slides = [
 const projects = [
   {
     number: '01',
-    name: 'Aplikacje webowe',
-    description: 'Narzędzia, które usprawniają codzienną pracę.',
+    slug: 'web-applications',
+    href: '/app',
+    name: 'Aplikacje i systemy webowe',
+    description: 'Tworzymy aplikacje dopasowane do procesów Twojej firmy.',
     image:
       'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=900&q=85',
   },
   {
     number: '02',
+    slug: 'websites',
+    href: '/websites',
     name: 'Strony internetowe',
     description: 'Dopracowana obecność Twojej marki w sieci.',
     image:
@@ -74,17 +84,12 @@ const projects = [
   },
   {
     number: '03',
-    name: 'Produkty cyfrowe',
-    description: 'Odważne pomysły przekute w dobre rozwiązania.',
+    slug: 'ai-implementation',
+    href: '/ai',
+    name: 'Wdrażanie AI',
+    description: 'Wdrażamy AI, które automatyzuje pracę i wspiera rozwój firmy.',
     image:
       'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=900&q=85',
-  },
-  {
-    number: '04',
-    name: 'Design i UX',
-    description: 'Proste doświadczenia, które lubią użytkownicy.',
-    image:
-      'https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=900&q=85',
   },
 ]
 
@@ -116,11 +121,19 @@ const certificates = [
 ]
 
 const fallbackProjects = makeFallbackEntries('projects', projects)
+const wayUpUrl = 'https://way-up-beryl.vercel.app/'
+const wayUpShowcase = makeFallbackEntries('projects', [{
+  slug: 'wayup',
+  title: 'wayUp — znajdź swoją drogę',
+  description: 'Poznaj aplikację stworzoną przez Gilusoft.',
+  href: wayUpUrl,
+  image: projects[0].image,
+}])[0]
 const fallbackWebsites = makeFallbackEntries('websites', websites)
 const fallbackCertificates = makeFallbackEntries('certificates', certificates)
 const fallbackBlog = makeFallbackEntries('blog', [
   { number: '01', title: 'Jak zaplanować dobrą stronę internetową', summary: 'Od celów biznesowych do struktury, która prowadzi użytkownika.', image: websites[0].image },
-  { number: '02', title: 'Dlaczego projekt UX zaczyna się od pytań', summary: 'Poznaj potrzeby użytkowników, zanim zaczniesz wybierać kolory i komponenty.', image: projects[3].image },
+  { number: '02', title: 'Dlaczego projekt UX zaczyna się od pytań', summary: 'Poznaj potrzeby użytkowników, zanim zaczniesz wybierać kolory i komponenty.', image: projects[2].image },
   { number: '03', title: 'Co warto ustalić przed budową aplikacji', summary: 'Zakres, priorytety i dobry plan pomagają stworzyć właściwy produkt.', image: projects[0].image },
 ])
 const fallbackTeam = makeFallbackEntries('team', [
@@ -131,11 +144,41 @@ const fallbackTeam = makeFallbackEntries('team', [
 const fallbackSite = makeFallbackEntries('site', [
   { number: 'global', title: 'Ustawienia strony', summary: '' },
 ])
-const fallbackPages = makeFallbackEntries('pages', [])
+const fallbackPages = makeFallbackEntries('pages', [
+  { slug: 'app', title: 'APLIKACJE, KTÓRE UŁATWIAJĄ ROZWÓJ', summary: 'Tworzymy aplikacje webowe i mobilne dopasowane do klientów oraz procesów Twojej firmy.' },
+  { slug: 'ai', title: 'AI, KTÓRE PRACUJE DLA TWOJEJ FIRMY', summary: 'Wdrażamy praktyczne rozwiązania AI i automatyzacje dopasowane do codziennych zadań Twojego zespołu.' },
+])
 
 function cmsImage(entries: ReturnType<typeof makeFallbackEntries>, slug: string, fallback: string) {
   const image = entries.find((entry) => entry.slug === slug)?.image_url
   return image || fallback
+}
+
+function getServiceHref(entry: { slug: string; content: Record<string, unknown> }) {
+  const internalHref = getInternalHref(entry)
+  if (internalHref) return internalHref
+  if (entry.slug === 'web-applications' || entry.slug === 'app') return '/app'
+  if (entry.slug === 'websites') return '/websites'
+  if (entry.slug === 'ai-implementation' || entry.slug === 'digital-products' || entry.slug === 'ai') return '/ai'
+  return '/projects'
+}
+
+function getInternalHref(entry: { content: Record<string, unknown> }) {
+  const href = entry.content.href
+  return typeof href === 'string' && /^\/(?!\/)/.test(href) ? href : undefined
+}
+
+function getExternalHref(entry: { content: Record<string, unknown> }) {
+  const href = entry.content.href
+  if (typeof href !== 'string') return undefined
+
+  try {
+    const url = new URL(href)
+    if (url.protocol === 'http:' || url.protocol === 'https:') return url.href
+  } catch {
+    return undefined
+  }
+  return undefined
 }
 
 function ArrowIcon({ diagonal = false }: { diagonal?: boolean }) {
@@ -222,7 +265,7 @@ function HomePage() {
         </div>
         <div className="project-grid">
           {projectEntries.map((project, index) => (
-            <Link className="project-card" to="/projects" key={project.id}>
+            <Link className="project-card" to={getServiceHref(project)} key={project.id}>
               <div className="project-image">
                 <img src={project.image_url} alt="" loading="lazy" />
                 <span className="project-number">{String(index + 1).padStart(2, '0')}</span>
@@ -387,8 +430,79 @@ function FilmScrollSection() {
 
 function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [session, setSession] = useState<Session | null>(null)
+  const [displayName, setDisplayName] = useState('')
+  const [profileUsername, setProfileUsername] = useState('')
+  const [authError, setAuthError] = useState('')
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const closeMenu = () => setMenuOpen(false)
+
+  useEffect(() => {
+    if (!supabase) return
+    let active = true
+    let currentUserId: string | null = null
+
+    const updateSession = (nextSession: Session | null) => {
+      currentUserId = nextSession?.user.id ?? null
+      setSession(nextSession)
+      setAuthError('')
+      setDisplayName(
+        nextSession?.user.user_metadata.display_name
+        || nextSession?.user.email?.split('@')[0]
+        || '',
+      )
+      setProfileUsername(nextSession?.user.user_metadata.username || '')
+      if (!nextSession) return
+      window.setTimeout(() => {
+        void supabase
+          ?.from('profiles')
+          .select('username, display_name')
+          .eq('user_id', nextSession.user.id)
+          .maybeSingle()
+          .then(({ data, error }) => {
+            if (!active || currentUserId !== nextSession.user.id) return
+            if (error) {
+              setAuthError(error.message)
+              return
+            }
+            if (data) {
+              setDisplayName(data.display_name || data.username)
+              setProfileUsername(data.username)
+            }
+          })
+      }, 0)
+    }
+
+    supabase.auth.getSession().then(({ data, error }) => {
+      if (!active) return
+      if (error) {
+        setAuthError(error.message)
+        return
+      }
+      updateSession(data.session)
+    })
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      if (active) updateSession(nextSession)
+    })
+
+    return () => {
+      active = false
+      authListener.subscription.unsubscribe()
+    }
+  }, [])
+
+  const signOut = async () => {
+    if (!supabase) return
+    setAuthError('')
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      setAuthError(error.message)
+      return
+    }
+    closeMenu()
+    navigate('/login')
+  }
 
   return (
     <header className="site-header">
@@ -407,15 +521,31 @@ function SiteHeader() {
         <span />
       </button>
       <nav className={menuOpen ? 'main-nav is-open' : 'main-nav'} aria-label={t('Nawigacja główna')}>
-          <Link to="/" onClick={closeMenu}>{t('Start')}</Link>
-          <Link to="/about" onClick={closeMenu}>{t('O nas')}</Link>
-          <Link to="/projects" onClick={closeMenu}>{t('Projekty')}</Link>
-          <Link to="/websites" onClick={closeMenu}>{t('Strony www')}</Link>
-          <Link to="/certificates" onClick={closeMenu}>{t('Certyfikaty')}</Link>
-          <Link to="/blog" onClick={closeMenu}>{t('Blog')}</Link>
-          <Link to="/team" onClick={closeMenu}>{t('Zespół')}</Link>
+        <Link to="/" onClick={closeMenu}>{t('Start')}</Link>
+        <Link to="/about" onClick={closeMenu}>{t('O nas')}</Link>
+        <Link to="/projects" onClick={closeMenu}>{t('Projekty')}</Link>
+        <Link to="/websites" onClick={closeMenu}>{t('Strony www')}</Link>
+        <Link to="/certificates" onClick={closeMenu}>{t('Certyfikaty')}</Link>
+        <Link to="/blog" onClick={closeMenu}>{t('Blog')}</Link>
+        <Link to="/team" onClick={closeMenu}>{t('Zespół')}</Link>
+        {session ? (
+          <>
+            <Link
+              className="nav-login"
+              to={`/panel/${encodeURIComponent(profileUsername || session.user.user_metadata.username || 'konto')}`}
+              onClick={closeMenu}
+            >
+              {displayName || t('Moje produkty')} · {t('Moje produkty')}
+            </Link>
+            <button className="nav-login nav-signout" onClick={() => void signOut()} type="button">
+              {t('Wyloguj się')}
+            </button>
+          </>
+        ) : (
           <Link className="nav-login" to="/login" onClick={closeMenu}>{t('Zaloguj się')} <ArrowIcon diagonal /></Link>
-        </nav>
+        )}
+        {authError && <span className="nav-auth-error" role="alert">{authError}</span>}
+      </nav>
     </header>
   )
 }
@@ -454,18 +584,35 @@ function ProjectsPage() {
       </section>
       <section className="content-page-grid section-wrap">
         {entries.map((project, index) => (
-          <ScrollReveal className="project-card" key={project.id}>
-            <div className="project-image">
-              <img src={project.image_url} alt="" loading="lazy" />
-              <span className="project-number">{String(index + 1).padStart(2, '0')}</span>
-              <span className="project-open"><ArrowIcon diagonal /></span>
-            </div>
-            <h3>{t(project.title)}</h3>
-            <p>{t(project.summary)}</p>
+          <ScrollReveal className="project-card-reveal" key={project.id}>
+            {getExternalHref(project) ? (
+              <a className="project-card-link" href={getExternalHref(project)} rel="noreferrer" target="_blank">
+                <ProjectCardContent entry={project} index={index} />
+              </a>
+            ) : (
+              <Link className="project-card-link" to={getServiceHref(project)}>
+                <ProjectCardContent entry={project} index={index} />
+              </Link>
+            )}
           </ScrollReveal>
         ))}
       </section>
     </main>
+  )
+}
+
+function ProjectCardContent({ entry, index }: { entry: (typeof fallbackProjects)[number]; index: number }) {
+  const { t } = useTranslation()
+  return (
+    <>
+      <div className="project-image">
+        <img src={entry.image_url} alt="" loading="lazy" />
+        <span className="project-number">{String(index + 1).padStart(2, '0')}</span>
+        <span className="project-open"><ArrowIcon diagonal /></span>
+      </div>
+      <h3>{t(entry.title)}</h3>
+      <p>{t(entry.summary)}</p>
+    </>
   )
 }
 
@@ -507,17 +654,238 @@ function WebsitesPage() {
         <p>{t('Nowoczesne strony i sklepy internetowe dla ambitnych firm.')}</p>
       </section>
       <section className="websites-grid section-wrap content-websites-grid">
-        {entries.map((website, index) => (
-          <ScrollReveal className="website-card" key={website.id}>
-            <div className="website-image">
-              <img src={website.image_url} alt="" loading="lazy" />
-              <span className="website-number">0{index + 1}</span>
-              <span className="website-arrow"><ArrowIcon diagonal /></span>
-            </div>
-            <div className="website-caption"><h3>{t(website.title)}</h3><span>{t(website.summary)}</span></div>
+        {entries.map((website, index) => {
+          const externalHref = getExternalHref(website)
+          const internalHref = getInternalHref(website)
+          const href = externalHref || internalHref
+          const card = (
+            <>
+              <div className="website-image">
+                <img src={website.image_url} alt="" loading="lazy" />
+                <span className="website-number">0{index + 1}</span>
+                {href && <span className="website-arrow"><ArrowIcon diagonal /></span>}
+              </div>
+              <div className="website-caption"><h3>{t(website.title)}</h3><span>{t(website.summary)}</span></div>
+            </>
+          )
+          return (
+            <ScrollReveal className="website-card" key={website.id}>
+              {externalHref ? (
+                <a className="website-card-link" href={externalHref} rel="noreferrer" target="_blank">{card}</a>
+              ) : internalHref ? (
+                <Link className="website-card-link" to={internalHref}>{card}</Link>
+              ) : card}
+            </ScrollReveal>
+          )
+        })}
+      </section>
+    </main>
+  )
+}
+
+function ServicePage({ kind }: { kind: 'app' | 'ai' }) {
+  const { t } = useTranslation()
+  const pages = useCmsEntries('pages', fallbackPages)
+  const siteEntries = useCmsEntries('site', fallbackSite)
+  const projectEntries = useCmsEntries('projects', fallbackProjects)
+  const appEntries = kind === 'app'
+    ? [
+      projectEntries.find((entry) => (
+        entry.slug === 'wayup' || getExternalHref(entry) === wayUpUrl
+      )) ?? wayUpShowcase,
+      ...projectEntries.filter((entry) => (
+        getExternalHref(entry)
+        && entry.slug !== 'wayup'
+        && getExternalHref(entry) !== wayUpUrl
+      )),
+    ]
+    : []
+  const settings = {
+    app: {
+      slug: 'app',
+      kicker: 'GILUSOFT / APLIKACJE',
+      title: 'APLIKACJE, KTÓRE UŁATWIAJĄ ROZWÓJ',
+      summary: 'Tworzymy aplikacje webowe i mobilne dopasowane do klientów oraz procesów Twojej firmy.',
+      image: projects[0].image,
+      features: [
+        ['Pomysł i plan', 'Ustalamy cele produktu, potrzeby użytkowników i zakres pierwszej wersji.'],
+        ['Projekt i development', 'Budujemy bezpieczne, szybkie aplikacje, które działają na różnych urządzeniach.'],
+        ['Rozwój i integracje', 'Łączymy aplikację z narzędziami, z których korzysta Twoja firma.'],
+      ],
+    },
+    ai: {
+      slug: 'ai',
+      kicker: 'GILUSOFT / WDRAŻANIE AI',
+      title: 'AI, KTÓRE PRACUJE DLA TWOJEJ FIRMY',
+      summary: 'Wdrażamy praktyczne rozwiązania AI i automatyzacje dopasowane do codziennych zadań Twojego zespołu.',
+      image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1800&q=85',
+      features: [
+        ['Analiza procesów', 'Szukamy zadań, które można bezpiecznie usprawnić lub zautomatyzować.'],
+        ['Integracje AI', 'Łączymy modele AI z danymi i narzędziami używanymi w Twojej firmie.'],
+        ['Wdrożenie i rozwój', 'Testujemy rozwiązanie, wdrażamy je i pomagamy zespołowi z niego korzystać.'],
+      ],
+    },
+  }[kind]
+  const page = pages.find((entry) => entry.slug === settings.slug)
+  const features = Array.isArray(page?.content.features)
+    ? page.content.features.filter((feature): feature is { title: string; description: string } => (
+      Boolean(feature)
+      && typeof feature === 'object'
+      && !Array.isArray(feature)
+      && typeof feature.title === 'string'
+      && typeof feature.description === 'string'
+    ))
+    : settings.features.map(([title, description]) => ({ title, description }))
+  const sectionTitle = typeof page?.content.sectionTitle === 'string'
+    ? page.content.sectionTitle
+    : settings.title
+  const body = typeof page?.content.body === 'string'
+    ? page.content.body
+    : settings.summary
+  const configuredEmail = siteEntries.find((entry) => entry.slug === 'global')?.content.contactEmail
+  const contactEmail = typeof configuredEmail === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(configuredEmail)
+    ? configuredEmail
+    : 'kontakt@gilusoft.pl'
+
+  return (
+    <main className="content-page service-page">
+      <section className="content-page-heading">
+        <span className="section-kicker">{t(settings.kicker)}</span>
+        <h1>{t(page?.title || settings.title)}</h1>
+        <p>{t(page?.summary || settings.summary)}</p>
+      </section>
+      <section className="service-hero section-wrap">
+        <img src={page?.image_url || settings.image} alt="" />
+        <div>
+          <span className="section-kicker">{t('OD POMYSŁU DO WDROŻENIA')}</span>
+          <h2>{t(sectionTitle)}</h2>
+          <p>{t(body)}</p>
+          <a className="film-link" href={`mailto:${contactEmail}`}>{t('POROZMAWIAJMY O TWOIM PROJEKCIE')} <ArrowIcon /></a>
+        </div>
+      </section>
+      <section className="service-features section-wrap">
+        {features.map((feature, index) => (
+          <ScrollReveal className="service-feature" key={`${feature.title}-${index}`}>
+            <span className="section-kicker">0{index + 1} / GILUSOFT</span>
+            <h2>{t(feature.title)}</h2>
+            <p>{t(feature.description)}</p>
           </ScrollReveal>
         ))}
       </section>
+      {appEntries.length > 0 && (
+        <section className="app-promos section-wrap">
+          <span className="section-kicker">{t('GILUSOFT / NASZE APLIKACJE')}</span>
+          <h2>{t('APLIKACJE STWORZONE PRZEZ GILUSOFT')}</h2>
+          <div className="app-promos-grid">
+            {appEntries.map((entry, index) => (
+              <ScrollReveal className="app-promo-reveal" key={entry.id}>
+                <a
+                  className="app-promo-card"
+                  href={getExternalHref(entry) || wayUpUrl}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <div className="app-promo-image">
+                    <img src={entry.image_url || projects[0].image} alt="" loading="lazy" />
+                    <span className="project-number">{String(index + 1).padStart(2, '0')}</span>
+                    <span className="website-arrow"><ArrowIcon diagonal /></span>
+                  </div>
+                  <h3>{t(entry.title)}</h3>
+                  <p>{t(entry.summary)}</p>
+                </a>
+              </ScrollReveal>
+            ))}
+          </div>
+        </section>
+      )}
+      <section className="service-next section-wrap">
+        <span className="section-kicker">{t('ZOBACZ RÓWNIEŻ')}</span>
+        <div>
+          {kind !== 'app' && <Link to="/app">{t('APLIKACJE')} <ArrowIcon diagonal /></Link>}
+          <Link to="/websites">{t('STRONY WWW')} <ArrowIcon diagonal /></Link>
+          {kind !== 'ai' && <Link to="/ai">{t('WDRAŻANIE AI')} <ArrowIcon diagonal /></Link>}
+        </div>
+      </section>
+    </main>
+  )
+}
+
+function CmsContentPage() {
+  const { slug = '' } = useParams()
+  const { t } = useTranslation()
+  const { items: pages, loading } = useCmsEntriesWithStatus('pages', fallbackPages)
+  const page = pages.find((entry) => entry.slug === slug)
+
+  if (loading && !page) {
+    return <main className="cms-status">{t('Ładowanie strony…')}</main>
+  }
+
+  if (!page) {
+    return (
+      <main className="content-page">
+        <section className="content-page-heading">
+          <span className="section-kicker">{t('GILUSOFT / 404')}</span>
+          <h1>{t('TA STRONA NIE ISTNIEJE.')}</h1>
+          <p>{t('Sprawdź adres lub wróć na stronę główną.')}</p>
+          <Link className="film-link" to="/">{t('WRÓĆ NA STRONĘ GŁÓWNĄ')} <ArrowIcon /></Link>
+        </section>
+      </main>
+    )
+  }
+
+  const sectionTitle = typeof page.content.sectionTitle === 'string'
+    ? page.content.sectionTitle
+    : page.title
+  const body = typeof page.content.body === 'string' ? page.content.body : page.summary
+  const additionalBody = typeof page.content.additionalBody === 'string'
+    ? page.content.additionalBody
+    : ''
+  const features = Array.isArray(page.content.features)
+    ? page.content.features.filter((feature): feature is { title: string; description: string } => (
+      Boolean(feature)
+      && typeof feature === 'object'
+      && !Array.isArray(feature)
+      && typeof feature.title === 'string'
+      && typeof feature.description === 'string'
+    ))
+    : []
+
+  return (
+    <main className="content-page service-page">
+      <section className="content-page-heading">
+        <span className="section-kicker">{t('GILUSOFT / STRONA')}</span>
+        <h1>{t(page.title || page.slug)}</h1>
+        <p>{t(page.summary)}</p>
+      </section>
+      {page.image_url && (
+        <section className="service-hero section-wrap">
+          <img src={page.image_url} alt="" />
+          <div>
+            <span className="section-kicker">{t('GILUSOFT / SZCZEGÓŁY')}</span>
+            <h2>{t(sectionTitle)}</h2>
+            {body && <p>{t(body)}</p>}
+            {additionalBody && <p>{t(additionalBody)}</p>}
+          </div>
+        </section>
+      )}
+      {!page.image_url && (
+        <section className="legal-copy section-wrap about-copy">
+          <h2>{t(sectionTitle)}</h2>
+          {body && <p>{t(body)}</p>}
+          {additionalBody && <p>{t(additionalBody)}</p>}
+        </section>
+      )}
+      {features.length > 0 && (
+        <section className="service-features section-wrap">
+          {features.map((feature, index) => (
+            <ScrollReveal className="service-feature" key={`${feature.title}-${index}`}>
+              <span className="section-kicker">0{index + 1} / GILUSOFT</span>
+              <h2>{t(feature.title)}</h2>
+              <p>{t(feature.description)}</p>
+            </ScrollReveal>
+          ))}
+        </section>
+      )}
     </main>
   )
 }
@@ -526,18 +894,21 @@ function AuthPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { t } = useTranslation()
+  const isAdminLogin = new URLSearchParams(location.search).get('redirect') === '/admin'
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [username, setUsername] = useState('')
   const [message, setMessage] = useState('')
   const [isError, setIsError] = useState(false)
+  const [profileMigrationRequired, setProfileMigrationRequired] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setMessage('')
     setIsError(false)
+    setProfileMigrationRequired(false)
 
     if (!supabase) {
       setIsError(true)
@@ -546,15 +917,13 @@ function AuthPage() {
     }
 
     const normalizedUsername = username.trim().toLowerCase()
-    if (isSignUp && !/^[a-z0-9_]{3,24}$/.test(normalizedUsername)) {
+    if ((isSignUp || isAdminLogin) && !/^[a-z0-9_]{3,24}$/.test(normalizedUsername)) {
       setIsError(true)
       setMessage(t('Nazwa użytkownika musi mieć 3–24 znaki: małe litery, cyfry lub podkreślenia.'))
       return
     }
 
     setIsLoading(true)
-    const requestedDestination = new URLSearchParams(location.search).get('redirect')
-    const postLoginDestination = requestedDestination === '/admin' ? '/admin' : null
     try {
       if (isSignUp) {
         const { data, error } = await supabase.auth.signUp({
@@ -572,6 +941,12 @@ function AuthPage() {
           return
         }
         setMessage(t('Konto utworzone. Sprawdź skrzynkę pocztową i potwierdź adres e-mail, aby się zalogować.'))
+      } else if (isAdminLogin) {
+        const { session: adminSession } = await signInAdminWithUsername(normalizedUsername, password)
+        const { error } = await supabase.auth.setSession(adminSession)
+        if (error) throw error
+        navigate('/admin', { replace: true })
+        return
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({
           email: email.trim(),
@@ -586,11 +961,28 @@ function AuthPage() {
           .single()
 
         if (profileError) throw profileError
-        navigate(postLoginDestination ?? `/panel/${profile.username}`)
+        navigate(`/panel/${profile.username}`)
       }
     } catch (error) {
       setIsError(true)
-      setMessage(error instanceof Error ? error.message : t('Nie udało się wykonać tej operacji.'))
+      const errorDetails = error && typeof error === 'object'
+        ? error as { code?: unknown; message?: unknown }
+        : null
+      const missingProfilesTable = errorDetails?.code === 'PGRST205'
+        && typeof errorDetails.message === 'string'
+        && errorDetails.message.includes('public.profiles')
+
+      if (missingProfilesTable) {
+        setProfileMigrationRequired(true)
+        setMessage('Brakuje tabeli profili w Supabase. Uruchom migrację 20261102100000_profiles.sql w SQL Editorze projektu.')
+      } else {
+        const errorMessage = error instanceof Error
+          ? error.message
+          : typeof errorDetails?.message === 'string'
+            ? errorDetails.message
+            : t('Nie udało się wykonać tej operacji.')
+        setMessage(errorMessage)
+      }
     } finally {
       setIsLoading(false)
     }
@@ -599,9 +991,17 @@ function AuthPage() {
   return (
     <main className="auth-page">
       <section className="auth-card">
-        <span className="section-kicker">{t('GILUSOFT / PANEL KLIENTA')}</span>
-        <h1>{isSignUp ? t('Utwórz konto.') : t('Miło Cię widzieć.')}</h1>
-        <p>{isSignUp ? t('Załóż konto, aby uzyskać dostęp do swojego panelu.') : t('Zaloguj się do swojego panelu Gilusoft.')}</p>
+        <span className="section-kicker">
+          {t(isAdminLogin ? 'GILUSOFT / PANEL ADMINISTRACYJNY' : 'GILUSOFT / PANEL KLIENTA')}
+        </span>
+        <h1>{isSignUp ? t('Utwórz konto.') : isAdminLogin ? t('Zaloguj się do panelu.') : t('Miło Cię widzieć.')}</h1>
+        <p>
+          {isSignUp
+            ? t('Załóż konto, aby uzyskać dostęp do swojego panelu.')
+            : isAdminLogin
+              ? t('Zaloguj się loginem administratora i hasłem.')
+              : t('Zaloguj się do swojego panelu Gilusoft.')}
+        </p>
         <form className="auth-form" onSubmit={submit}>
           {isSignUp && (
             <label>
@@ -618,17 +1018,33 @@ function AuthPage() {
               />
             </label>
           )}
-          <label>
-            {t('Adres e-mail')}
-            <input
-              autoComplete="email"
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder={t('you@company.com')}
-              required
-              type="email"
-              value={email}
-            />
-          </label>
+          {isAdminLogin ? (
+            <label>
+              {t('Login')}
+              <input
+                autoComplete="username"
+                maxLength={24}
+                minLength={3}
+                onChange={(event) => setUsername(event.target.value)}
+                pattern="[a-zA-Z0-9_]{3,24}"
+                placeholder="np. gilusoft_admin"
+                required
+                value={username}
+              />
+            </label>
+          ) : (
+            <label>
+              {t('Adres e-mail')}
+              <input
+                autoComplete="email"
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder={t('you@company.com')}
+                required
+                type="email"
+                value={email}
+              />
+            </label>
+          )}
           <label>
             {t('Hasło')}
             <input
@@ -647,13 +1063,28 @@ function AuthPage() {
           </button>
         </form>
         {message && <p className={isError ? 'auth-message is-error' : 'auth-message'} role="status">{message}</p>}
-        <button
+        {profileMigrationRequired && (
+          <div className="auth-config-note">
+            <strong>Jak naprawić logowanie</strong>
+            <span>
+              W Supabase otwórz SQL Editor, uruchom plik
+              {' '}<code>supabase/migrations/20261102100000_profiles.sql</code>,
+              a następnie spróbuj ponownie.
+            </span>
+          </div>
+        )}
+        {!isAdminLogin && <button
           className="auth-switch"
           onClick={() => { setIsSignUp(!isSignUp); setMessage('') }}
           type="button"
         >
           {isSignUp ? t('Masz już konto? Zaloguj się') : t('Nie masz konta? Utwórz je')}
-        </button>
+        </button>}
+        {!isAdminLogin && (
+          <Link className="auth-switch auth-admin-link" to="/admin">
+            {t('Panel administracyjny')}
+          </Link>
+        )}
         {!isSupabaseConfigured && (
           <div className="auth-config-note">
             <strong>{t('Wymagana konfiguracja Supabase')}</strong>
@@ -671,6 +1102,8 @@ function UserPanel() {
   const navigate = useNavigate()
   const [session, setSession] = useState<Session | null>(null)
   const [profile, setProfile] = useState<{ username: string; display_name: string } | null>(null)
+  const [products, setProducts] = useState<ClientProduct[]>([])
+  const [loadingProducts, setLoadingProducts] = useState(Boolean(supabase))
   const [errorMessage, setErrorMessage] = useState(
     supabase ? '' : t('Panel wymaga konfiguracji Supabase.'),
   )
@@ -695,6 +1128,16 @@ function UserPanel() {
       }
 
       setSession(data.session)
+      if (isCmsApiConfigured()) {
+        void getClientProducts()
+          .then(({ items }) => setProducts(items))
+          .catch(() => setProducts([]))
+          .finally(() => setLoadingProducts(false))
+      } else {
+        setProducts([])
+        setLoadingProducts(false)
+      }
+
       const { data: currentProfile, error: profileError } = await client
         .from('profiles')
         .select('username, display_name')
@@ -740,7 +1183,7 @@ function UserPanel() {
   if (!supabase) {
     return (
       <main className="auth-page">
-        <section className="panel-card">
+        <section className="panel-card client-panel">
           <span className="section-kicker">GILUSOFT / PANEL KLIENTA</span>
           <h1>{t('Panel niedostępny.')}</h1>
           <p>{t('Skonfiguruj projekt Supabase, zanim panel będzie mógł zweryfikować Twoją sesję.')}</p>
@@ -752,7 +1195,7 @@ function UserPanel() {
 
   return (
     <main className="auth-page">
-      <section className="panel-card">
+      <section className="panel-card client-panel">
         <span className="section-kicker">{t('GILUSOFT / PANEL KLIENTA')}</span>
         <h1>{t('Witaj,')} <span>{profile?.display_name || routeUsername}</span>.</h1>
         <p className="panel-email">{session?.user.email}</p>
@@ -764,6 +1207,54 @@ function UserPanel() {
             <p>{t('Twoje konto jest połączone z Supabase. Tutaj możesz rozwijać swój panel klienta.')}</p>
           </div>
         ) : null}
+        <section className="client-products" aria-labelledby="client-products-heading">
+          <div className="client-products-heading">
+            <div>
+              <span className="section-kicker">GILUSOFT / TWOJE REALIZACJE</span>
+              <h2 id="client-products-heading">Moje produkty</h2>
+            </div>
+            <span className="client-products-count">{products.length}</span>
+          </div>
+          {loadingProducts && <p className="panel-status">ŁADOWANIE PRODUKTÓW...</p>}
+          {!loadingProducts && products.length === 0 && (
+            <p className="client-products-empty">
+              Nie masz jeszcze przypisanych produktów. Skontaktuj się z nami, aby omówić swój projekt.
+            </p>
+          )}
+          {products.length > 0 && (
+            <div className="client-products-list">
+              {products.map((product) => (
+                <article className="client-product-card" key={product.id}>
+                  <div className="client-product-meta">
+                    <span>
+                      {{
+                        app: 'Aplikacja internetowa',
+                        website: 'Strona internetowa',
+                        ai_integration: 'Integracja AI',
+                      }[product.category]}
+                    </span>
+                    <span>
+                      {{
+                        planning: 'Planowanie',
+                        in_progress: 'W realizacji',
+                        review: 'Do akceptacji',
+                        live: 'Opublikowany',
+                        maintenance: 'Utrzymanie',
+                      }[product.status]}
+                    </span>
+                  </div>
+                  <h3>{product.name}</h3>
+                  {product.description && <p>{product.description}</p>}
+                  {product.url && (
+                    <a href={product.url} rel="noreferrer" target="_blank">
+                      Otwórz produkt <ArrowIcon diagonal />
+                    </a>
+                  )}
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
         <button className="auth-submit" onClick={signOut} type="button">{t('WYLOGUJ SIĘ')} <ArrowIcon /></button>
       </section>
     </main>
@@ -1136,7 +1627,9 @@ function SiteFooter() {
             <span>{t('Nasza strona')}</span>
             <Link to="/about">{t('O nas')}</Link>
             <Link to="/projects">{t('Projekty')}</Link>
+            <Link to="/app">{t('APLIKACJE')}</Link>
             <Link to="/websites">{t('Strony www')}</Link>
+            <Link to="/ai">{t('WDRAŻANIE AI')}</Link>
             <Link to="/certificates">{t('CERTYFIKATY')}</Link>
             <Link to="/blog">{t('Blog')}</Link>
             <Link to="/team">{t('Zespół')}</Link>
@@ -1198,6 +1691,10 @@ function RouteTransition() {
           <Route element={<BlogArticlePage />} path="/blog/:slug" />
           <Route element={<TeamPage />} path="/team" />
           <Route element={<ProjectsPage />} path="/projects" />
+          <Route element={<ServicePage kind="app" />} path="/app" />
+          <Route element={<ServicePage kind="ai" />} path="/ai" />
+          <Route element={<Navigate replace to="/app" />} path="/applications" />
+          <Route element={<Navigate replace to="/ai" />} path="/ai-implementation" />
           <Route element={<CertificatesPage />} path="/certificates" />
           <Route element={<WebsitesPage />} path="/websites" />
           <Route element={<AuthPage />} path="/login" />
@@ -1211,6 +1708,7 @@ function RouteTransition() {
             }
             path="/admin"
           />
+          <Route element={<CmsContentPage />} path="/:slug" />
           <Route element={<CookiesPage />} path="/cookies" />
           <Route element={<CookiesPage />} path="/cookie-settings" />
           <Route element={<LegalPolicyPage kind="privacy" />} path="/privacy-policy" />

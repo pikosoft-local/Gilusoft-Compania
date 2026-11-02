@@ -28,7 +28,8 @@ npm run dev
 
 3. Wykonaj migrację
    `../supabase/migrations/20261102100000_profiles.sql` w SQL Editorze projektu.
-   Tworzy ona tabelę profili z polityką RLS i profil powiązany z nowym kontem.
+   Tworzy ona tabelę profili z polityką RLS i uzupełnia profile istniejących
+   kont; nowe konta dostają profil automatycznie.
 4. W panelu Supabase włącz Email Auth i dodaj adres `http://localhost:5173/login`
    do dozwolonych URL-i przekierowania (oraz odpowiedni adres produkcyjny).
 5. Zrestartuj serwer Vite po zmianie `.env.local`.
@@ -42,21 +43,35 @@ musi potwierdzić adres przed pierwszym logowaniem.
 1. Wykonaj także migrację
    `../supabase/migrations/20261102140000_cms.sql`. Tworzy ona treści CMS,
    administratorów, przykładowe wpisy oraz publiczny bucket obrazów.
-2. Zaloguj się do witryny i skopiuj swój UUID z `Authentication → Users`
-   w Supabase. Przyznaj dostęp do panelu, wykonując w SQL Editorze:
+   Jeśli migracje CMS były już wcześniej zastosowane, uruchom również
+   `../supabase/migrations/20261102173000_update_services.sql`, aby zmienić
+   ofertę na aplikacje, strony WWW i wdrażanie AI.
+2. Uruchom
+   `../supabase/migrations/20261102180000_client_products.sql` po migracji
+   profili. Tworzy ona prywatne rekordy produktów przypisywane do kont klientów.
+3. Nie ma wspólnego ani domyślnego hasła administratora. Utwórz własne konto
+   przez `/login` (adres e-mail i hasło są przechowywane przez Supabase Auth),
+   a następnie potwierdź adres, jeśli projekt tego wymaga. W SQL Editorze
+   Supabase nadaj temu kontu uprawnienia administratora:
 
    ```sql
    insert into public.cms_admins (user_id)
-   values ('UUID_UŻYTKOWNIKA');
+   select id
+   from auth.users
+   where email = 'TWOJ_ADRES_EMAIL'
+   on conflict (user_id) do nothing;
    ```
 
-   Alternatywnie możesz ustawić listę zaufanych UUID w `CMS_ADMIN_USER_IDS`.
-   Użytkownicy nie mogą sami nadać sobie roli administratora.
-3. Skopiuj `backend/.env.example` do `backend/.env` i wpisz `SUPABASE_URL`,
+   Zastąp `TWOJ_ADRES_EMAIL` adresem użytym przy rejestracji. Alternatywnie
+   możesz ustawić listę zaufanych UUID w `CMS_ADMIN_USER_IDS`. Użytkownicy
+   nie mogą sami nadać sobie roli administratora. Na `/admin` administrator
+   loguje się nazwą użytkownika z profilu i hasłem; backend mapuje login na
+   konto Supabase, więc formularz panelu nie wymaga adresu e-mail.
+4. Skopiuj `backend/.env.example` do `backend/.env` i wpisz `SUPABASE_URL`,
    **sekretny** `SUPABASE_SERVICE_ROLE_KEY` oraz adres frontendowy. Klucz
    service-role może być używany wyłącznie przez backend; nigdy nie umieszczaj
    go w zmiennych `VITE_*` ani w kodzie przeglądarki.
-4. W osobnych terminalach uruchom:
+5. W osobnych terminalach uruchom:
 
    ```powershell
    Set-Location backend
@@ -70,10 +85,25 @@ musi potwierdzić adres przed pierwszym logowaniem.
    npm run dev
    ```
 
-5. Zaloguj się na konto administratora i otwórz `/admin`. Panel zarządza
+6. Zaloguj się na konto administratora i otwórz `/admin`. Panel zarządza
    projektami, stronami, certyfikatami, wpisami bloga, zespołem, stronami
    informacyjnymi, tłumaczeniami i ustawieniami witryny. Można publikować szkice,
-   ustawiać kolejność, przypisywać język i wgrywać obrazy.
+   ustawiać kolejność, przypisywać język i wgrywać obrazy. W sekcji
+   „Produkty klientów” administrator może przypisać do profilu klienta
+   aplikację, stronę internetową lub integrację AI, opisać status prac i podać
+   opcjonalny link. Zalogowany klient zobaczy przypisane pozycje w panelu
+   „Moje produkty”; API zwraca wyłącznie rekordy należące do jego konta.
+
+W kolekcji „Treści stron” utwórz wpis o identyfikatorze `apps`, aby opublikować
+nową stronę pod `/apps`. Tytuł i opis uzupełnij w formularzu; w JSON możesz
+dodać `body`, `sectionTitle`, `additionalBody` oraz listę `features` w formacie
+`[{"title":"Funkcja","description":"Opis"}]`. Zapisz wpis jako opublikowany.
+Adresy takie jak `/app`, `/ai`, `/about` czy `/projects` mają już własne widoki;
+ich treść jest edytowana przez istniejące wpisy CMS i nie zostanie zastąpiona
+przez stronę o takim samym identyfikatorze. W kolekcjach „Projekty” i „Strony
+internetowe” dodaj osobne wpisy, aby pokazać aplikację albo witrynę na listach;
+pole „Adres docelowy” przyjmuje adres zewnętrzny lub lokalną ścieżkę, np.
+`/apps`.
 
 Treści strony pozostają wbudowanym szablonem, dopóki backend nie jest
 skonfigurowany; po konfiguracji publiczne kolekcje pobierają opublikowane wpisy
@@ -83,9 +113,19 @@ tylko potrzebne pola i opublikuj wpis. Obrazki strony można zarządzać w
 `process-image`; pole `imageUrl` wpisu przechowuje ich adres. Wpis `global`
 ustawia m.in. e-mail kontaktowy.
 
+Aby dodać klikalny kafelek promujący aplikację, utwórz opublikowany wpis w
+kolekcji „Projekty” i ustaw w polu „Dodatkowe pola (JSON)” adres docelowy, np.
+`{"href":"https://twoja-aplikacja.pl"}`. Wpis pojawi się w sekcji aplikacji oraz
+na stronie projektów. Wpisy w kolekcji „Strony internetowe” z takim polem
+również będą klikalne i otworzą adres strony w nowej karcie. Do kafelka dodaj
+tytuł, opis i obraz w panelu CMS.
+
 Endpoint publicznej treści: `GET /api/content/:collection`. Panel korzysta z
 `/api/admin/*` i wymaga tokenu Supabase oraz administratora z tabeli
-`cms_admins`. `/api/health` sprawdza konfigurację i dostępność tabeli CMS.
+`cms_admins`. Produkty klienta są pobierane przez `GET /api/client/products`;
+administratorzy zarządzają nimi przez `/api/admin/client-products`. Te endpointy
+wymagają migracji tabeli produktów. `/api/health` sprawdza konfigurację i
+dostępność tabeli CMS.
 
 ## Wdrożenie na Vercel
 
@@ -115,7 +155,9 @@ zmiennej `VITE_*`. Zmiana zmiennych Vercel wymaga ponownego wdrożenia projektu.
 - `/` — strona główna
 - `/about` — o studiu
 - `/projects` — realizacje
+- `/app` — tworzenie aplikacji i systemów webowych
 - `/websites` — strony internetowe
+- `/ai` — wdrażanie AI i automatyzacje
 - `/certificates` — certyfikaty
 - `/login` — logowanie i rejestracja
 - `/panel/:username` — panel chroniony sesją Supabase

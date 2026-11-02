@@ -13,6 +13,7 @@ import {
 } from './lib/cms'
 import { supabase } from './lib/supabase'
 import { getDefaultTranslations, supportedLanguages, type Language } from './i18n'
+import ClientProductsAdmin from './ClientProductsAdmin'
 
 const collectionLabels: Record<CmsCollection, string> = {
   projects: 'Projekty',
@@ -31,6 +32,7 @@ interface EntryForm {
   title: string
   summary: string
   imageUrl: string
+  href: string
   content: string
   published: boolean
   sortOrder: string
@@ -42,6 +44,7 @@ const emptyForm: EntryForm = {
   title: '',
   summary: '',
   imageUrl: '',
+  href: '',
   content: '{}',
   published: false,
   sortOrder: '0',
@@ -54,6 +57,7 @@ function formFromEntry(entry: CmsEntry): EntryForm {
     title: entry.title,
     summary: entry.summary,
     imageUrl: entry.image_url,
+    href: typeof entry.content.href === 'string' ? entry.content.href : '',
     content: JSON.stringify(entry.content, null, 2),
     published: entry.published,
     sortOrder: String(entry.sort_order),
@@ -67,6 +71,7 @@ export default function CmsAdminPage() {
   const [authorized, setAuthorized] = useState(false)
   const [checkingAccess, setCheckingAccess] = useState(true)
   const [collection, setCollection] = useState<CmsCollection>('blog')
+  const [adminView, setAdminView] = useState<'content' | 'products'>('content')
   const [entries, setEntries] = useState<CmsEntry[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [form, setForm] = useState<EntryForm>(emptyForm)
@@ -155,6 +160,7 @@ export default function CmsAdminPage() {
   }, [location.pathname, location.search, navigate, refreshEntries, startTransition])
 
   const selectCollection = (nextCollection: CmsCollection) => {
+    setAdminView('content')
     collectionRef.current = nextCollection
     setCollection(nextCollection)
     setNotice('')
@@ -218,10 +224,13 @@ export default function CmsAdminPage() {
     setError('')
     setNotice('')
     try {
-      const content = JSON.parse(form.content) as unknown
-      if (!content || Array.isArray(content) || typeof content !== 'object') {
+      const parsedContent = JSON.parse(form.content) as unknown
+      if (!parsedContent || Array.isArray(parsedContent) || typeof parsedContent !== 'object') {
         throw new Error('Dodatkowe pola muszą być obiektem JSON, np. {"body":"Treść"}.')
       }
+      const content = { ...parsedContent } as Record<string, unknown>
+      if (form.href.trim()) content.href = form.href.trim()
+      else delete content.href
       const savedEntry = await saveAdminEntry(collection, {
         slug: form.slug.trim().toLowerCase(),
         locale: form.locale,
@@ -309,7 +318,11 @@ export default function CmsAdminPage() {
           <span className="section-kicker">GILUSOFT / CMS</span>
           <h1>Panel administracyjny</h1>
           <p role="alert">{error || 'To konto nie ma uprawnień administratora CMS.'}</p>
-          <Link className="auth-submit" to="/login">Przejdź do logowania</Link>
+          <p className="cms-admin-help">
+            Zaloguj się kontem utworzonym w Supabase. Aby nadać mu dostęp administratora,
+            dodaj jego identyfikator w tabeli <code>public.cms_admins</code> — instrukcja znajduje się w README.
+          </p>
+          <Link className="auth-submit" to="/login?redirect=%2Fadmin">Przejdź do logowania</Link>
         </section>
       </main>
     )
@@ -320,12 +333,23 @@ export default function CmsAdminPage() {
       <section className="cms-heading">
         <span className="section-kicker">GILUSOFT / ZARZĄDZANIE TREŚCIĄ</span>
         <h1>Twoja strona.<br /><span>Twoje treści.</span></h1>
-        <p>Dodawaj, poprawiaj i publikuj treści w jednym miejscu.</p>
+        <p>Zarządzaj treścią witryny i produktami przypisanymi klientom.</p>
       </section>
 
       <div className="cms-workspace">
         <aside className="cms-collections" aria-label="Typy treści">
           <h2>Treści</h2>
+          <button
+            aria-current={adminView === 'products' ? 'page' : undefined}
+            className={adminView === 'products' ? 'is-active' : ''}
+            onClick={() => {
+              setAdminView('products')
+              setError('')
+            }}
+            type="button"
+          >
+            <span>Produkty klientów</span>
+          </button>
           {cmsCollections.map((item) => (
             <button
               aria-current={collection === item ? 'page' : undefined}
@@ -341,6 +365,10 @@ export default function CmsAdminPage() {
           <Link className="cms-view-site" to="/">Otwórz stronę ↗</Link>
         </aside>
 
+        {adminView === 'products' ? (
+          <ClientProductsAdmin />
+        ) : (
+          <>
         <section className="cms-entry-list">
           <div className="cms-list-heading">
             <div>
@@ -391,6 +419,11 @@ export default function CmsAdminPage() {
                 required
                 value={form.slug}
               />
+              {collection === 'pages' && (
+                <span className="cms-field-help">
+                  Publiczny adres strony: <code>/{form.slug || 'twoja-strona'}</code>. Opublikuj wpis, aby strona była widoczna.
+                </span>
+              )}
             </label>
             <label>
               Język
@@ -441,6 +474,20 @@ export default function CmsAdminPage() {
               />
               {uploading && <span className="cms-field-help">Wgrywanie obrazu…</span>}
             </label>
+            {(collection === 'projects' || collection === 'websites') && (
+              <label>
+                Adres docelowy (opcjonalnie)
+                <input
+                  autoComplete="url"
+                  onChange={(event) => setForm((current) => ({ ...current, href: event.target.value }))}
+                  placeholder="https://twoja-aplikacja.pl lub /apps"
+                  value={form.href}
+                />
+                <span className="cms-field-help">
+                  Link zewnętrzny otworzy się w nowej karcie. Ścieżka lokalna, np. <code>/apps</code>, otworzy opublikowaną stronę.
+                </span>
+              </label>
+            )}
             <label>
               Dodatkowe pola (JSON)
               <textarea
@@ -451,7 +498,8 @@ export default function CmsAdminPage() {
                 value={form.content}
               />
               <span className="cms-field-help">
-                Dla wpisu blogowego umieść treść w polu <code>body</code>. Tłumaczenia są obiektem klucz-wartość.
+                Dla strony dodaj <code>body</code>, opcjonalnie <code>sectionTitle</code> i listę <code>features</code>.
+                {' '}Dla wpisu blogowego umieść treść w polu <code>body</code>. Tłumaczenia są obiektem klucz-wartość.
               </span>
             </label>
             {collection === 'translations' && (
@@ -511,6 +559,8 @@ export default function CmsAdminPage() {
             </button>
           </form>
         </section>
+          </>
+        )}
       </div>
     </main>
   )

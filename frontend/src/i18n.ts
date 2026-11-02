@@ -35,13 +35,15 @@ const translations: Record<Language, Record<string, string>> = {
     'MOŻLIWOŚCI': 'CAPABILITIES',
     'Od pierwszego szkicu do produktu, który działa.': 'From the first sketch to a product that works.',
     'Aplikacje webowe': 'Web applications',
+    'Aplikacje i systemy webowe': 'Apps and web systems',
+    'Tworzymy aplikacje dopasowane do procesów Twojej firmy.':
+      'We build apps tailored to your business processes.',
     'Narzędzia, które usprawniają codzienną pracę.': 'Tools that make everyday work easier.',
     'Strony internetowe': 'Websites',
     'Dopracowana obecność Twojej marki w sieci.': 'A polished online presence for your brand.',
-    'Produkty cyfrowe': 'Digital products',
-    'Odważne pomysły przekute w dobre rozwiązania.': 'Bold ideas turned into great solutions.',
-    'Design i UX': 'Design & UX',
-    'Proste doświadczenia, które lubią użytkownicy.': 'Simple experiences people love to use.',
+    'Wdrażanie AI': 'AI implementation',
+    'Wdrażamy AI, które automatyzuje pracę i wspiera rozwój firmy.':
+      'We implement AI that automates work and helps your business grow.',
     'GILUSOFT / OD POMYSŁU DO WDROŻENIA': 'GILUSOFT / FROM IDEA TO LAUNCH',
     'TWORZYMY': 'WE BUILD',
     'CYFROWY ŚWIAT': 'A DIGITAL WORLD',
@@ -107,6 +109,39 @@ const translations: Record<Language, Record<string, string>> = {
     'Kompetencje, które wspierają jakość naszych realizacji.':
       'The expertise behind the quality of our work.',
     'GILUSOFT / STRONY INTERNETOWE': 'GILUSOFT / WEB DESIGN',
+    'GILUSOFT / APLIKACJE': 'GILUSOFT / APPS',
+    'GILUSOFT / NASZE APLIKACJE': 'GILUSOFT / OUR APPS',
+    'APLIKACJE STWORZONE PRZEZ GILUSOFT': 'APPS BUILT BY GILUSOFT',
+    'GILUSOFT / WDRAŻANIE AI': 'GILUSOFT / AI IMPLEMENTATION',
+    'APLIKACJE, KTÓRE UŁATWIAJĄ ROZWÓJ': 'APPS THAT HELP YOUR BUSINESS GROW',
+    'AI, KTÓRE PRACUJE DLA TWOJEJ FIRMY': 'AI THAT WORKS FOR YOUR BUSINESS',
+    'Tworzymy aplikacje webowe i mobilne dopasowane do klientów oraz procesów Twojej firmy.':
+      'We build web and mobile apps tailored to your customers and business processes.',
+    'Wdrażamy praktyczne rozwiązania AI i automatyzacje dopasowane do codziennych zadań Twojego zespołu.':
+      'We implement practical AI and automation tailored to your team’s day-to-day work.',
+    'OD POMYSŁU DO WDROŻENIA': 'FROM IDEA TO LAUNCH',
+    'Pomysł i plan': 'Discovery and planning',
+    'Ustalamy cele produktu, potrzeby użytkowników i zakres pierwszej wersji.':
+      'We define product goals, user needs and the scope of the first release.',
+    'Projekt i development': 'Design and development',
+    'Budujemy bezpieczne, szybkie aplikacje, które działają na różnych urządzeniach.':
+      'We build secure, fast apps that work across devices.',
+    'Rozwój i integracje': 'Growth and integrations',
+    'Łączymy aplikację z narzędziami, z których korzysta Twoja firma.':
+      'We connect your app with the tools your business already uses.',
+    'Analiza procesów': 'Process analysis',
+    'Szukamy zadań, które można bezpiecznie usprawnić lub zautomatyzować.':
+      'We find tasks that can be safely improved or automated.',
+    'Integracje AI': 'AI integrations',
+    'Łączymy modele AI z danymi i narzędziami używanymi w Twojej firmie.':
+      'We connect AI models with your business data and tools.',
+    'Wdrożenie i rozwój': 'Implementation and growth',
+    'Testujemy rozwiązanie, wdrażamy je i pomagamy zespołowi z niego korzystać.':
+      'We test and deploy the solution, then help your team use it.',
+    'POROZMAWIAJMY O TWOIM PROJEKCIE': 'LET’S TALK ABOUT YOUR PROJECT',
+    'ZOBACZ RÓWNIEŻ': 'EXPLORE MORE',
+    'APLIKACJE': 'APPS',
+    'WDRAŻANIE AI': 'AI IMPLEMENTATION',
     'Nowoczesne strony i sklepy internetowe dla ambitnych firm.':
       'Modern websites and online stores for ambitious businesses.',
     'GILUSOFT / PANEL KLIENTA': 'GILUSOFT / CLIENT PORTAL',
@@ -115,6 +150,8 @@ const translations: Record<Language, Record<string, string>> = {
     'Załóż konto, aby uzyskać dostęp do swojego panelu.':
       'Create an account to access your client portal.',
     'Zaloguj się do swojego panelu Gilusoft.': 'Log in to your Gilusoft client portal.',
+    'Login': 'Username',
+    'Zaloguj się loginem administratora i hasłem.': 'Sign in with your administrator username and password.',
     'Nazwa użytkownika': 'Username',
     'Adres e-mail': 'Email address',
     'Hasło': 'Password',
@@ -344,13 +381,15 @@ const translations: Record<Language, Record<string, string>> = {
     'MOŻLIWOŚCI': 'LEISTUNGEN',
     'Od pierwszego szkicu do produktu, który działa.': 'Vom ersten Entwurf bis zum fertigen Produkt.',
     'Aplikacje webowe': 'Webanwendungen',
+    'Aplikacje i systemy webowe': 'Apps und Websysteme',
+    'Tworzymy aplikacje dopasowane do procesów Twojej firmy.':
+      'Wir entwickeln Apps passend zu den Abläufen Ihres Unternehmens.',
     'Narzędzia, które usprawniają codzienną pracę.': 'Tools, die den Arbeitsalltag erleichtern.',
     'Strony internetowe': 'Websites',
     'Dopracowana obecność Twojej marki w sieci.': 'Ein überzeugender Auftritt Ihrer Marke im Web.',
-    'Produkty cyfrowe': 'Digitale Produkte',
-    'Odważne pomysły przekute w dobre rozwiązania.': 'Mutige Ideen, die zu guten Lösungen werden.',
-    'Design i UX': 'Design & UX',
-    'Proste doświadczenia, które lubią użytkownicy.': 'Einfache Erlebnisse, die Nutzer begeistern.',
+    'Wdrażanie AI': 'KI-Implementierung',
+    'Wdrażamy AI, które automatyzuje pracę i wspiera rozwój firmy.':
+      'Wir integrieren KI, die Arbeit automatisiert und Ihr Unternehmen voranbringt.',
     'GILUSOFT / OD POMYSŁU DO WDROŻENIA': 'GILUSOFT / VON DER IDEE ZUM START',
     'TWORZYMY': 'WIR SCHAFFEN',
     'CYFROWY ŚWIAT': 'DIE DIGITALE WELT',
@@ -415,6 +454,39 @@ const translations: Record<Language, Record<string, string>> = {
     'Kompetencje, które wspierają jakość naszych realizacji.':
       'Kompetenz, die die Qualität unserer Arbeit sichert.',
     'GILUSOFT / STRONY INTERNETOWE': 'GILUSOFT / WEBDESIGN',
+    'GILUSOFT / APLIKACJE': 'GILUSOFT / APPS',
+    'GILUSOFT / NASZE APLIKACJE': 'GILUSOFT / UNSERE APPS',
+    'APLIKACJE STWORZONE PRZEZ GILUSOFT': 'VON GILUSOFT ENTWICKELTE APPS',
+    'GILUSOFT / WDRAŻANIE AI': 'GILUSOFT / KI-IMPLEMENTIERUNG',
+    'APLIKACJE, KTÓRE UŁATWIAJĄ ROZWÓJ': 'APPS, DIE IHR UNTERNEHMEN VORANBRINGEN',
+    'AI, KTÓRE PRACUJE DLA TWOJEJ FIRMY': 'KI, DIE FÜR IHR UNTERNEHMEN ARBEITET',
+    'Tworzymy aplikacje webowe i mobilne dopasowane do klientów oraz procesów Twojej firmy.':
+      'Wir entwickeln Web- und Mobile-Apps passend zu Ihren Kunden und Unternehmensabläufen.',
+    'Wdrażamy praktyczne rozwiązania AI i automatyzacje dopasowane do codziennych zadań Twojego zespołu.':
+      'Wir integrieren praktische KI-Lösungen und Automatisierungen für die täglichen Aufgaben Ihres Teams.',
+    'OD POMYSŁU DO WDROŻENIA': 'VON DER IDEE BIS ZUM START',
+    'Pomysł i plan': 'Idee und Planung',
+    'Ustalamy cele produktu, potrzeby użytkowników i zakres pierwszej wersji.':
+      'Wir definieren Produktziele, Nutzerbedürfnisse und den Umfang der ersten Version.',
+    'Projekt i development': 'Konzeption und Entwicklung',
+    'Budujemy bezpieczne, szybkie aplikacje, które działają na różnych urządzeniach.':
+      'Wir entwickeln sichere, schnelle Apps für verschiedene Geräte.',
+    'Rozwój i integracje': 'Weiterentwicklung und Integrationen',
+    'Łączymy aplikację z narzędziami, z których korzysta Twoja firma.':
+      'Wir verbinden Ihre App mit den Tools, die Ihr Unternehmen bereits nutzt.',
+    'Analiza procesów': 'Analyse der Abläufe',
+    'Szukamy zadań, które można bezpiecznie usprawnić lub zautomatyzować.':
+      'Wir finden Aufgaben, die sich sicher verbessern oder automatisieren lassen.',
+    'Integracje AI': 'KI-Integrationen',
+    'Łączymy modele AI z danymi i narzędziami używanymi w Twojej firmie.':
+      'Wir verbinden KI-Modelle mit den Daten und Tools Ihres Unternehmens.',
+    'Wdrożenie i rozwój': 'Implementierung und Weiterentwicklung',
+    'Testujemy rozwiązanie, wdrażamy je i pomagamy zespołowi z niego korzystać.':
+      'Wir testen und implementieren die Lösung und unterstützen Ihr Team bei der Nutzung.',
+    'POROZMAWIAJMY O TWOIM PROJEKCIE': 'SPRECHEN WIR ÜBER IHR PROJEKT',
+    'ZOBACZ RÓWNIEŻ': 'ENTDECKEN SIE AUCH',
+    'APLIKACJE': 'APPS',
+    'WDRAŻANIE AI': 'KI-IMPLEMENTIERUNG',
     'Nowoczesne strony i sklepy internetowe dla ambitnych firm.':
       'Moderne Websites und Online-Shops für ambitionierte Unternehmen.',
     'GILUSOFT / PANEL KLIENTA': 'GILUSOFT / KUNDENBEREICH',
@@ -423,6 +495,8 @@ const translations: Record<Language, Record<string, string>> = {
     'Załóż konto, aby uzyskać dostęp do swojego panelu.':
       'Erstellen Sie ein Konto für Ihren Kundenbereich.',
     'Zaloguj się do swojego panelu Gilusoft.': 'Melden Sie sich in Ihrem Gilusoft-Kundenbereich an.',
+    'Login': 'Benutzername',
+    'Zaloguj się loginem administratora i hasłem.': 'Melden Sie sich mit Administrator-Benutzername und Passwort an.',
     'Nazwa użytkownika': 'Benutzername',
     'Adres e-mail': 'E-Mail-Adresse',
     'Hasło': 'Passwort',
@@ -650,13 +724,15 @@ const translations: Record<Language, Record<string, string>> = {
     'MOŻLIWOŚCI': 'COMPÉTENCES',
     'Od pierwszego szkicu do produktu, który działa.': 'Du premier croquis au produit fonctionnel.',
     'Aplikacje webowe': 'Applications web',
+    'Aplikacje i systemy webowe': 'Applications et systèmes web',
+    'Tworzymy aplikacje dopasowane do procesów Twojej firmy.':
+      'Nous créons des applications adaptées aux processus de votre entreprise.',
     'Narzędzia, które usprawniają codzienną pracę.': 'Des outils qui simplifient le quotidien.',
     'Strony internetowe': 'Sites web',
     'Dopracowana obecność Twojej marki w sieci.': 'Une présence en ligne soignée pour votre marque.',
-    'Produkty cyfrowe': 'Produits numériques',
-    'Odważne pomysły przekute w dobre rozwiązania.': 'Des idées audacieuses transformées en solutions utiles.',
-    'Design i UX': 'Design & UX',
-    'Proste doświadczenia, które lubią użytkownicy.': 'Des expériences simples que les utilisateurs apprécient.',
+    'Wdrażanie AI': 'Intégration de l’IA',
+    'Wdrażamy AI, które automatyzuje pracę i wspiera rozwój firmy.':
+      'Nous intégrons une IA qui automatise le travail et soutient la croissance de votre entreprise.',
     'GILUSOFT / OD POMYSŁU DO WDROŻENIA': 'GILUSOFT / DE L’IDÉE AU LANCEMENT',
     'TWORZYMY': 'NOUS CRÉONS',
     'CYFROWY ŚWIAT': 'UN MONDE NUMÉRIQUE',
@@ -721,6 +797,39 @@ const translations: Record<Language, Record<string, string>> = {
     'Kompetencje, które wspierają jakość naszych realizacji.':
       'Les compétences qui garantissent la qualité de nos réalisations.',
     'GILUSOFT / STRONY INTERNETOWE': 'GILUSOFT / CRÉATION WEB',
+    'GILUSOFT / APLIKACJE': 'GILUSOFT / APPLICATIONS',
+    'GILUSOFT / NASZE APLIKACJE': 'GILUSOFT / NOS APPLICATIONS',
+    'APLIKACJE STWORZONE PRZEZ GILUSOFT': 'APPLICATIONS CRÉÉES PAR GILUSOFT',
+    'GILUSOFT / WDRAŻANIE AI': 'GILUSOFT / INTÉGRATION DE L’IA',
+    'APLIKACJE, KTÓRE UŁATWIAJĄ ROZWÓJ': 'DES APPLICATIONS QUI FONT AVANCER VOTRE ACTIVITÉ',
+    'AI, KTÓRE PRACUJE DLA TWOJEJ FIRMY': 'L’IA AU SERVICE DE VOTRE ENTREPRISE',
+    'Tworzymy aplikacje webowe i mobilne dopasowane do klientów oraz procesów Twojej firmy.':
+      'Nous créons des applications web et mobiles adaptées à vos clients et à vos processus.',
+    'Wdrażamy praktyczne rozwiązania AI i automatyzacje dopasowane do codziennych zadań Twojego zespołu.':
+      'Nous intégrons des solutions d’IA et des automatisations adaptées au quotidien de votre équipe.',
+    'OD POMYSŁU DO WDROŻENIA': 'DE L’IDÉE AU LANCEMENT',
+    'Pomysł i plan': 'Idée et plan',
+    'Ustalamy cele produktu, potrzeby użytkowników i zakres pierwszej wersji.':
+      'Nous définissons les objectifs du produit, les besoins des utilisateurs et le périmètre de la première version.',
+    'Projekt i development': 'Conception et développement',
+    'Budujemy bezpieczne, szybkie aplikacje, które działają na różnych urządzeniach.':
+      'Nous créons des applications rapides et sécurisées, adaptées à tous les appareils.',
+    'Rozwój i integracje': 'Évolution et intégrations',
+    'Łączymy aplikację z narzędziami, z których korzysta Twoja firma.':
+      'Nous connectons l’application aux outils utilisés par votre entreprise.',
+    'Analiza procesów': 'Analyse des processus',
+    'Szukamy zadań, które można bezpiecznie usprawnić lub zautomatyzować.':
+      'Nous identifions les tâches à améliorer ou automatiser en toute sécurité.',
+    'Integracje AI': 'Intégrations IA',
+    'Łączymy modele AI z danymi i narzędziami używanymi w Twojej firmie.':
+      'Nous connectons les modèles d’IA aux données et outils de votre entreprise.',
+    'Wdrożenie i rozwój': 'Mise en œuvre et évolution',
+    'Testujemy rozwiązanie, wdrażamy je i pomagamy zespołowi z niego korzystać.':
+      'Nous testons et déployons la solution, puis aidons votre équipe à l’utiliser.',
+    'POROZMAWIAJMY O TWOIM PROJEKCIE': 'PARLONS DE VOTRE PROJET',
+    'ZOBACZ RÓWNIEŻ': 'À DÉCOUVRIR AUSSI',
+    'APLIKACJE': 'APPLICATIONS',
+    'WDRAŻANIE AI': 'INTÉGRATION DE L’IA',
     'Nowoczesne strony i sklepy internetowe dla ambitnych firm.':
       'Des sites et boutiques modernes pour les entreprises ambitieuses.',
     'GILUSOFT / PANEL KLIENTA': 'GILUSOFT / ESPACE CLIENT',
@@ -729,6 +838,8 @@ const translations: Record<Language, Record<string, string>> = {
     'Załóż konto, aby uzyskać dostęp do swojego panelu.':
       'Créez un compte pour accéder à votre espace client.',
     'Zaloguj się do swojego panelu Gilusoft.': 'Connectez-vous à votre espace client Gilusoft.',
+    'Login': 'Identifiant',
+    'Zaloguj się loginem administratora i hasłem.': 'Connectez-vous avec votre identifiant et votre mot de passe administrateur.',
     'Nazwa użytkownika': 'Nom d’utilisateur',
     'Adres e-mail': 'Adresse e-mail',
     'Hasło': 'Mot de passe',

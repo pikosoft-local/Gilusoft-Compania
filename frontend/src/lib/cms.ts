@@ -39,6 +39,43 @@ export interface CmsEntryInput {
   sortOrder: number
 }
 
+export type ClientProductCategory = 'app' | 'website' | 'ai_integration'
+export type ClientProductStatus = 'planning' | 'in_progress' | 'review' | 'live' | 'maintenance'
+
+export interface ClientProduct {
+  id: string
+  user_id: string
+  name: string
+  category: ClientProductCategory
+  description: string
+  status: ClientProductStatus
+  url: string
+  created_at: string
+  updated_at: string
+  username?: string
+  display_name?: string
+}
+
+export interface ClientProfile {
+  user_id: string
+  username: string
+  display_name: string
+}
+
+export interface ClientProductInput {
+  username: string
+  name: string
+  category: ClientProductCategory
+  description: string
+  status: ClientProductStatus
+  url: string
+}
+
+export interface AdminLoginSession {
+  access_token: string
+  refresh_token: string
+}
+
 const apiBaseUrl = import.meta.env.VITE_API_URL?.replace(/\/+$/, '')
 
 export function isCmsApiConfigured() {
@@ -111,6 +148,44 @@ export async function verifyCmsAdmin() {
   return request<{ user: { id: string; email?: string }; isAdmin: boolean }>(
     '/admin/me',
     {},
+    true,
+  )
+}
+
+export async function signInAdminWithUsername(username: string, password: string) {
+  return request<{ session: AdminLoginSession }>(
+    '/auth/admin/username',
+    {
+      method: 'POST',
+      body: JSON.stringify({ username, password }),
+    },
+  )
+}
+
+export async function getClientProducts() {
+  return request<{ items: ClientProduct[] }>('/client/products', {}, true)
+}
+
+export async function getAdminClientProducts() {
+  return request<{ items: ClientProduct[] }>('/admin/client-products', {}, true)
+}
+
+export async function getAdminClients() {
+  return request<{ items: ClientProfile[] }>('/admin/client-products/clients', {}, true)
+}
+
+export async function saveAdminClientProduct(input: ClientProductInput, id?: string) {
+  return request<ClientProduct>(
+    id ? `/admin/client-products/${encodeURIComponent(id)}` : '/admin/client-products',
+    { method: id ? 'PUT' : 'POST', body: JSON.stringify(input) },
+    true,
+  )
+}
+
+export async function deleteAdminClientProduct(id: string) {
+  return request<{ deleted: boolean }>(
+    `/admin/client-products/${encodeURIComponent(id)}`,
+    { method: 'DELETE' },
     true,
   )
 }
