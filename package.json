@@ -1,0 +1,20 @@
+{
+  "name": "compania",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/pikosoft-local/Gilusoft-Compania#readme",
+  "bugs": {
+    "url": "https://github.com/pikosoft-local/Gilusoft-Compania/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pikosoft-local/Gilusoft-Compania.git"
+  },
+  "license": "ISC",
+  "author": "Paweł Gilewicz , Jakub Zabłocki",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
