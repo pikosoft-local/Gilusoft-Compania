@@ -92,8 +92,8 @@ Endpoint publicznej treści: `GET /api/content/:collection`. Panel korzysta z
 Frontend i API wdrażaj jako **dwa projekty Vercel** z tego samego repozytorium:
 
 1. **API:** utwórz projekt Vercel z Root Directory `backend`. Plik
-   `backend/vercel.json` konfiguruje NestJS jako funkcję serverless i wyłącza
-   statyczny katalog `public`, którego Nest nie tworzy. Dodaj w Vercel
+   `backend/vercel.json` konfiguruje NestJS jako funkcję serverless i używa
+   pustego `backend/public/` jako wymaganego katalogu wyjściowego Vercel. Dodaj w Vercel
    Environment Variables: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`,
    `CMS_STORAGE_BUCKET=cms-assets` oraz `FRONTEND_ORIGINS` z dozwolonym
    originem frontendu, np. `https://gilusoft.vercel.app`. Po wdrożeniu sprawdź
