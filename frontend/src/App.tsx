@@ -129,7 +129,7 @@ const wayUpShowcase = makeFallbackEntries('projects', [{
   href: wayUpUrl,
   image: projects[0].image,
 }])[0]
-const fallbackWebsites = makeFallbackEntries('websites', websites)
+const fallbackWebsites = makeFallbackEntries('websites', [])
 const fallbackCertificates = makeFallbackEntries('certificates', certificates)
 const fallbackBlog = makeFallbackEntries('blog', [
   { number: '01', title: 'Jak zaplanować dobrą stronę internetową', summary: 'Od celów biznesowych do struktury, która prowadzi użytkownika.', image: websites[0].image },
@@ -137,9 +137,16 @@ const fallbackBlog = makeFallbackEntries('blog', [
   { number: '03', title: 'Co warto ustalić przed budową aplikacji', summary: 'Zakres, priorytety i dobry plan pomagają stworzyć właściwy produkt.', image: projects[0].image },
 ])
 const fallbackTeam = makeFallbackEntries('team', [
-  { number: '01', title: 'Miejsce na członka zespołu', summary: 'Strategia i produkt' },
-  { number: '02', title: 'Miejsce na członka zespołu', summary: 'Projektowanie UX/UI' },
-  { number: '03', title: 'Miejsce na członka zespołu', summary: 'Rozwój oprogramowania' },
+  {
+    slug: 'pawel-gilewicz',
+    title: 'Paweł Gilewicz',
+    summary: 'Aplikacje webowe, strony WWW i rozwiązania AI.',
+  },
+  {
+    slug: 'jakub-zablocki',
+    title: 'Jakub Zabłocki',
+    summary: 'Aplikacje webowe, strony WWW i rozwiązania AI.',
+  },
 ])
 const fallbackSite = makeFallbackEntries('site', [
   { number: 'global', title: 'Ustawienia strony', summary: '' },
@@ -507,7 +514,7 @@ function SiteHeader() {
   return (
     <header className="site-header">
       <Link className="wordmark" to="/" aria-label={t('Gilusoft — strona główna')} onClick={closeMenu}>
-        <span className="brand-mark" aria-hidden="true">g.</span>
+        <span className="brand-mark" aria-hidden="true"><img src="/logoGilusoft.png" alt="" /></span>
         <span>GILU<span>SOFT</span></span>
       </Link>
       <button
@@ -646,38 +653,57 @@ function CertificatesPage() {
 function WebsitesPage() {
   const { t } = useTranslation()
   const entries = useCmsEntries('websites', fallbackWebsites)
+  const portfolioEntries = entries.filter((entry) => getExternalHref(entry))
   return (
     <main className="content-page">
       <section className="content-page-heading">
-        <span className="section-kicker">{t('GILUSOFT / STRONY INTERNETOWE')}</span>
-        <h1>{t('STRONY WWW')}<br /><span>{t('PO TWOJEMU.')}</span></h1>
-        <p>{t('Nowoczesne strony i sklepy internetowe dla ambitnych firm.')}</p>
+        <span className="section-kicker">{t('GILUSOFT / NASZE STRONY WWW')}</span>
+        <h1>{t('STRONY STWORZONE')}<br /><span>{t('PRZEZ GILUSOFT.')}</span></h1>
+        <p>{t('Zobacz strony internetowe i sklepy, które zaprojektowaliśmy i wdrożyliśmy.')}</p>
       </section>
-      <section className="websites-grid section-wrap content-websites-grid">
-        {entries.map((website, index) => {
-          const externalHref = getExternalHref(website)
-          const internalHref = getInternalHref(website)
-          const href = externalHref || internalHref
-          const card = (
-            <>
-              <div className="website-image">
-                <img src={website.image_url} alt="" loading="lazy" />
-                <span className="website-number">0{index + 1}</span>
-                {href && <span className="website-arrow"><ArrowIcon diagonal /></span>}
-              </div>
-              <div className="website-caption"><h3>{t(website.title)}</h3><span>{t(website.summary)}</span></div>
-            </>
-          )
-          return (
-            <ScrollReveal className="website-card" key={website.id}>
-              {externalHref ? (
-                <a className="website-card-link" href={externalHref} rel="noreferrer" target="_blank">{card}</a>
-              ) : internalHref ? (
-                <Link className="website-card-link" to={internalHref}>{card}</Link>
-              ) : card}
-            </ScrollReveal>
-          )
-        })}
+      <section className="app-promos section-wrap website-portfolio" aria-labelledby="website-portfolio-heading">
+        <div className="website-portfolio-heading">
+          <div>
+            <span className="section-kicker">{t('GILUSOFT / PUBLICZNE REALIZACJE')}</span>
+            <h2 id="website-portfolio-heading">{t('STRONY WWW STWORZONE PRZEZ GILUSOFT')}</h2>
+          </div>
+          <span className="client-products-count">{portfolioEntries.length}</span>
+        </div>
+        {portfolioEntries.length > 0 ? (
+          <div className="app-promos-grid">
+            {portfolioEntries.map((website, index) => (
+              <ScrollReveal className="app-promo-reveal" key={website.id}>
+                <a
+                  className="app-promo-card"
+                  href={getExternalHref(website)}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <div className="app-promo-image">
+                    {website.image_url ? (
+                      <img src={website.image_url} alt="" loading="lazy" />
+                    ) : (
+                      <div className="website-portfolio-placeholder" aria-hidden="true">
+                        <span>G.</span>
+                      </div>
+                    )}
+                    <span className="project-number">{String(index + 1).padStart(2, '0')}</span>
+                    <span className="website-arrow"><ArrowIcon diagonal /></span>
+                  </div>
+                  <h3>{t(website.title)}</h3>
+                  {website.summary && <p>{t(website.summary)}</p>}
+                </a>
+              </ScrollReveal>
+            ))}
+          </div>
+        ) : (
+          <div className="website-portfolio-empty">
+            <p>{t('Pracujemy nad kolejnymi realizacjami. Wkrótce pojawią się tutaj strony stworzone przez Gilusoft.')}</p>
+            <a className="film-link" href="mailto:kontakt@gilusoft.pl">
+              {t('POROZMAWIAJMY O TWOIM PROJEKCIE')} <ArrowIcon />
+            </a>
+          </div>
+        )}
       </section>
     </main>
   )
@@ -1468,7 +1494,14 @@ function BlogArticlePage() {
 
 function TeamPage() {
   const { t } = useTranslation()
-  const entries = useCmsEntries('team', fallbackTeam)
+  const publishedEntries = useCmsEntries('team', fallbackTeam)
+  const featuredSlugs = new Set(fallbackTeam.map((member) => member.slug))
+  const entries = [
+    ...fallbackTeam.map((fallbackMember) => (
+      publishedEntries.find((member) => member.slug === fallbackMember.slug) ?? fallbackMember
+    )),
+    ...publishedEntries.filter((member) => !featuredSlugs.has(member.slug)),
+  ]
 
   return (
     <main className="content-page">
@@ -1482,7 +1515,11 @@ function TeamPage() {
           <ScrollReveal className="team-card" key={member.id}>
             {member.image_url
               ? <img className="team-avatar-image" src={member.image_url} alt="" loading="lazy" />
-              : <div className="team-avatar" aria-hidden="true"><span>G.</span></div>}
+             : (
+               <div className="team-avatar" aria-hidden="true">
+                 <span>{member.title.split(/\s+/).map((part) => part[0]).join('').slice(0, 2)}</span>
+               </div>
+             )}
             <span className="team-number">{String(index + 1).padStart(2, '0')} / GILUSOFT</span>
             <h2>{t(member.title)}</h2>
             <p>{t(member.summary)}</p>
@@ -1647,7 +1684,7 @@ function SiteFooter() {
         </div>
       </div>
       <div className="footer-bottom section-wrap">
-        <Link className="wordmark" to="/"><span className="brand-mark">g.</span><span>GILU<span>SOFT</span></span></Link>
+        <Link className="wordmark" to="/"><span className="brand-mark" aria-hidden="true"><img src="/logoGilusoft.png" alt="" /></span><span>GILU<span>SOFT</span></span></Link>
         <span>{t('PROJEKTUJEMY TO, CO DALEJ.')}</span>
         <span>© GILUSOFT</span>
       </div>

@@ -117,8 +117,10 @@ Aby dodać klikalny kafelek promujący aplikację, utwórz opublikowany wpis w
 kolekcji „Projekty” i ustaw w polu „Dodatkowe pola (JSON)” adres docelowy, np.
 `{"href":"https://twoja-aplikacja.pl"}`. Wpis pojawi się w sekcji aplikacji oraz
 na stronie projektów. Wpisy w kolekcji „Strony internetowe” z takim polem
-również będą klikalne i otworzą adres strony w nowej karcie. Do kafelka dodaj
-tytuł, opis i obraz w panelu CMS.
+również będą widoczne w publicznym portfolio `/websites` i otworzą adres strony
+w nowej karcie. Podaj rzeczywisty adres witryny; wpisy bez zewnętrznego adresu
+nie są prezentowane jako ukończone realizacje. Do kafelka dodaj tytuł, opis i
+obraz w panelu CMS.
 
 Endpoint publicznej treści: `GET /api/content/:collection`. Panel korzysta z
 `/api/admin/*` i wymaga tokenu Supabase oraz administratora z tabeli

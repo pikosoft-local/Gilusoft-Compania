@@ -109,6 +109,15 @@ const translations: Record<Language, Record<string, string>> = {
     'Kompetencje, które wspierają jakość naszych realizacji.':
       'The expertise behind the quality of our work.',
     'GILUSOFT / STRONY INTERNETOWE': 'GILUSOFT / WEB DESIGN',
+    'GILUSOFT / NASZE STRONY WWW': 'GILUSOFT / OUR WEBSITES',
+    'STRONY STWORZONE': 'WEBSITES BUILT',
+    'PRZEZ GILUSOFT.': 'BY GILUSOFT.',
+    'Zobacz strony internetowe i sklepy, które zaprojektowaliśmy i wdrożyliśmy.':
+      'Explore websites and online stores we have designed and launched.',
+    'GILUSOFT / PUBLICZNE REALIZACJE': 'GILUSOFT / PUBLIC PORTFOLIO',
+    'STRONY WWW STWORZONE PRZEZ GILUSOFT': 'WEBSITES BUILT BY GILUSOFT',
+    'Pracujemy nad kolejnymi realizacjami. Wkrótce pojawią się tutaj strony stworzone przez Gilusoft.':
+      'We are working on new projects. Websites built by Gilusoft will appear here soon.',
     'GILUSOFT / APLIKACJE': 'GILUSOFT / APPS',
     'GILUSOFT / NASZE APLIKACJE': 'GILUSOFT / OUR APPS',
     'APLIKACJE STWORZONE PRZEZ GILUSOFT': 'APPS BUILT BY GILUSOFT',
@@ -454,6 +463,15 @@ const translations: Record<Language, Record<string, string>> = {
     'Kompetencje, które wspierają jakość naszych realizacji.':
       'Kompetenz, die die Qualität unserer Arbeit sichert.',
     'GILUSOFT / STRONY INTERNETOWE': 'GILUSOFT / WEBDESIGN',
+    'GILUSOFT / NASZE STRONY WWW': 'GILUSOFT / UNSERE WEBSITES',
+    'STRONY STWORZONE': 'WEBSITES, DIE',
+    'PRZEZ GILUSOFT.': 'GILUSOFT ENTWICKELT HAT.',
+    'Zobacz strony internetowe i sklepy, które zaprojektowaliśmy i wdrożyliśmy.':
+      'Entdecken Sie Websites und Online-Shops, die wir gestaltet und umgesetzt haben.',
+    'GILUSOFT / PUBLICZNE REALIZACJE': 'GILUSOFT / ÖFFENTLICHE PROJEKTE',
+    'STRONY WWW STWORZONE PRZEZ GILUSOFT': 'VON GILUSOFT ENTWICKELTE WEBSITES',
+    'Pracujemy nad kolejnymi realizacjami. Wkrótce pojawią się tutaj strony stworzone przez Gilusoft.':
+      'Wir arbeiten an neuen Projekten. Hier erscheinen bald weitere von Gilusoft entwickelte Websites.',
     'GILUSOFT / APLIKACJE': 'GILUSOFT / APPS',
     'GILUSOFT / NASZE APLIKACJE': 'GILUSOFT / UNSERE APPS',
     'APLIKACJE STWORZONE PRZEZ GILUSOFT': 'VON GILUSOFT ENTWICKELTE APPS',
@@ -797,6 +815,15 @@ const translations: Record<Language, Record<string, string>> = {
     'Kompetencje, które wspierają jakość naszych realizacji.':
       'Les compétences qui garantissent la qualité de nos réalisations.',
     'GILUSOFT / STRONY INTERNETOWE': 'GILUSOFT / CRÉATION WEB',
+    'GILUSOFT / NASZE STRONY WWW': 'GILUSOFT / NOS SITES WEB',
+    'STRONY STWORZONE': 'DES SITES CRÉÉS',
+    'PRZEZ GILUSOFT.': 'PAR GILUSOFT.',
+    'Zobacz strony internetowe i sklepy, które zaprojektowaliśmy i wdrożyliśmy.':
+      'Découvrez les sites et boutiques en ligne que nous avons conçus et réalisés.',
+    'GILUSOFT / PUBLICZNE REALIZACJE': 'GILUSOFT / NOS RÉALISATIONS',
+    'STRONY WWW STWORZONE PRZEZ GILUSOFT': 'SITES WEB CRÉÉS PAR GILUSOFT',
+    'Pracujemy nad kolejnymi realizacjami. Wkrótce pojawią się tutaj strony stworzone przez Gilusoft.':
+      'Nous préparons de nouveaux projets. Les sites créés par Gilusoft apparaîtront bientôt ici.',
     'GILUSOFT / APLIKACJE': 'GILUSOFT / APPLICATIONS',
     'GILUSOFT / NASZE APLIKACJE': 'GILUSOFT / NOS APPLICATIONS',
     'APLIKACJE STWORZONE PRZEZ GILUSOFT': 'APPLICATIONS CRÉÉES PAR GILUSOFT',
