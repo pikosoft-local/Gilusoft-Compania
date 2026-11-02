@@ -326,7 +326,7 @@ function HomePage() {
         </div>
       </section>
 
-      <section className="websites-section section-wrap" id="strony">
+      <section className={`websites-section section-wrap${websiteEntries.length === 0 ? ' websites-section-empty' : ''}`} id="strony">
         <div className="center-heading">
           <p className="section-kicker">{t('PROJEKTOWANIE STRON WWW')}</p>
           <h2>{t('TWOJA MARKA.')}<br /><span>{t('TWOJA PRZESTRZEŃ.')}</span></h2>
@@ -393,10 +393,12 @@ function FilmScrollSection() {
 
   if (reduceMotion) {
     return (
-      <section className="film-static section-wrap" aria-label={t('Nasz proces')}>
-        <p className="section-kicker">{t('GILUSOFT / OD POMYSŁU DO WDROŻENIA')}</p>
-        <h2>{t('OD POMYSŁU')}<br /><span>{t('DO PRODUKTU.')}</span></h2>
-        <p>{t('Rozmawiamy, projektujemy i wdrażamy — wspólnie tworzymy rozwiązania gotowe do rozwoju.')}</p>
+      <section className="film-static" aria-label={t('Nasz proces')}>
+        <div className="film-static-content section-wrap">
+          <p className="section-kicker">{t('GILUSOFT / OD POMYSŁU DO WDROŻENIA')}</p>
+          <h2>{t('OD POMYSŁU')}<br /><span>{t('DO PRODUKTU.')}</span></h2>
+          <p>{t('Rozmawiamy, projektujemy i wdrażamy — wspólnie tworzymy rozwiązania gotowe do rozwoju.')}</p>
+        </div>
       </section>
     )
   }
