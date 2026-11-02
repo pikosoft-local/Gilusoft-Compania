@@ -87,6 +87,29 @@ Endpoint publicznej treści: `GET /api/content/:collection`. Panel korzysta z
 `/api/admin/*` i wymaga tokenu Supabase oraz administratora z tabeli
 `cms_admins`. `/api/health` sprawdza konfigurację i dostępność tabeli CMS.
 
+## Wdrożenie na Vercel
+
+Frontend i API wdrażaj jako **dwa projekty Vercel** z tego samego repozytorium:
+
+1. **API:** utwórz projekt Vercel z Root Directory `backend`. Plik
+   `backend/vercel.json` konfiguruje NestJS jako funkcję serverless i wyłącza
+   statyczny katalog `public`, którego Nest nie tworzy. Dodaj w Vercel
+   Environment Variables: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`,
+   `CMS_STORAGE_BUCKET=cms-assets` oraz `FRONTEND_ORIGINS` z dozwolonym
+   originem frontendu, np. `https://gilusoft.vercel.app`. Po wdrożeniu sprawdź
+   `https://<adres-api>/api/health`.
+2. **Frontend:** utwórz drugi projekt z Root Directory `frontend`. Plik
+   `frontend/vercel.json` kieruje ścieżki SPA (np. `/admin` i `/blog/post`)
+   do `index.html`. Ustaw `VITE_SUPABASE_URL`,
+   `VITE_SUPABASE_PUBLISHABLE_KEY` i `VITE_API_URL=https://<adres-api>/api`.
+3. Dodaj adres domeny frontendu w Supabase Auth jako dozwolony site URL i
+   URL przekierowania logowania. Zastosuj obie migracje Supabase i przyznaj
+   swoje konto `cms_admins`, jak opisano wyżej.
+
+Klucz `SUPABASE_SERVICE_ROLE_KEY` dodawaj wyłącznie w zmiennych środowiskowych
+projektu API na Vercel. Nigdy nie dodawaj go do projektu frontendu ani do
+zmiennej `VITE_*`. Zmiana zmiennych Vercel wymaga ponownego wdrożenia projektu.
+
 ## Ścieżki
 
 - `/` — strona główna

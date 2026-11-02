@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 
-async function bootstrap() {
+export async function createNestApp() {
   const app = await NestFactory.create(AppModule)
   const config = app.get(ConfigService)
   const origins = (config.get<string>('FRONTEND_ORIGINS') ?? 'http://localhost:5173')
@@ -23,7 +23,14 @@ async function bootstrap() {
     transform: true,
   }))
 
+  await app.init()
+  return app
+}
+
+async function bootstrap() {
+  const app = await createNestApp()
+  const config = app.get(ConfigService)
   await app.listen(config.get<number>('PORT') ?? 3000)
 }
 
-void bootstrap()
+if (require.main === module) void bootstrap()
