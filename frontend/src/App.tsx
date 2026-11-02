@@ -307,22 +307,14 @@ function HomePage() {
               {t('Każda firma ma swoją historię. Pomagamy opowiedzieć ją w sieci i dajemy jej narzędzia, żeby mogła rozwijać się dalej.')}
             </p>
           </div>
-          <div className="showcase-mosaic">
-            {websiteEntries.slice(0, 3).map((website, index) => (
-              <Link className={`mosaic-card mosaic-card-${index + 1}`} to="/websites" key={website.id} aria-label={`${t('Zobacz')} ${website.title}`}>
-                <img src={website.image_url} alt="" loading="lazy" />
-                <span className="mosaic-play"><ArrowIcon diagonal /></span>
-              </Link>
-            ))}
-            <Link className="mosaic-card mosaic-card-4" to="/projects" aria-label={t('Zobacz realizacje')}>
-              <img src={projectEntries[0]?.image_url ?? projects[0].image} alt="" loading="lazy" />
-              <span className="mosaic-play"><ArrowIcon diagonal /></span>
-            </Link>
-            <Link className="mosaic-card mosaic-card-5" to="/projects" aria-label={t('Zobacz realizacje')}>
-              <img src={projectEntries[2]?.image_url ?? projects[2].image} alt="" loading="lazy" />
-              <span className="mosaic-play"><ArrowIcon diagonal /></span>
-            </Link>
-          </div>
+          <Link className="showcase-feature" to="/websites" aria-label={t('ZOBACZ NASZE STRONY')}>
+            <img
+              src={websiteEntries[0]?.image_url ?? projectEntries[0]?.image_url ?? projects[0].image}
+              alt=""
+              loading="lazy"
+            />
+            <span className="showcase-feature-arrow"><ArrowIcon diagonal /></span>
+          </Link>
         </div>
       </section>
 

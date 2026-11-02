@@ -573,7 +573,7 @@
 
 .project-image img,
 .website-image img,
-.mosaic-card img,
+.showcase-feature img,
 .showcase-background {
   width: 100%;
   height: 100%;
@@ -582,13 +582,13 @@
 
 .project-image img,
 .website-image img,
-.mosaic-card img {
+.showcase-feature img {
   transition: transform 450ms ease;
 }
 
 .project-card:hover .project-image img,
 .website-card:hover .website-image img,
-.mosaic-card:hover img {
+.showcase-feature:hover img {
   transform: scale(1.05);
 }
 
@@ -604,7 +604,7 @@
 
 .project-open,
 .website-arrow,
-.mosaic-play {
+.showcase-feature-arrow {
   position: absolute;
   z-index: 1;
   right: 12px;
@@ -621,14 +621,14 @@
 
 .project-card:hover .project-open,
 .website-card:hover .website-arrow,
-.mosaic-card:hover .mosaic-play {
+.showcase-feature:hover .showcase-feature-arrow {
   color: #050707;
   background: var(--accent);
 }
 
 .project-open .arrow-icon,
 .website-arrow .arrow-icon,
-.mosaic-play .arrow-icon {
+.showcase-feature-arrow .arrow-icon {
   width: 14px;
   height: 14px;
 }
@@ -724,46 +724,21 @@
   line-height: 1.8;
 }
 
-.showcase-mosaic {
-  display: grid;
-  height: 380px;
-  grid-template: repeat(3, 1fr) / repeat(3, 1fr);
-  gap: 10px;
-}
-
-.mosaic-card {
+.showcase-feature {
   position: relative;
+  display: block;
+  height: clamp(340px, 36vw, 460px);
   overflow: hidden;
   border-radius: 12px;
   background: #1a2321;
 }
 
-.mosaic-card-1 {
-  grid-area: 1 / 2 / 2 / 4;
-}
-
-.mosaic-card-2 {
-  grid-area: 2 / 1 / 3 / 2;
-}
-
-.mosaic-card-3 {
-  grid-area: 2 / 2 / 3 / 3;
-}
-
-.mosaic-card-4 {
-  grid-area: 2 / 3 / 3 / 4;
-}
-
-.mosaic-card-5 {
-  grid-area: 3 / 2 / 4 / 4;
-}
-
-.mosaic-play {
-  right: 9px;
-  bottom: 9px;
-  width: 27px;
-  height: 27px;
-  background: rgba(0, 0, 0, 0.25);
+.showcase-feature-arrow {
+  right: 16px;
+  bottom: 16px;
+  width: 42px;
+  height: 42px;
+  background: rgba(0, 0, 0, 0.35);
 }
 
 .websites-section {
@@ -2577,9 +2552,8 @@
     margin-top: 16px;
   }
 
-  .showcase-mosaic {
-    height: 250px;
-    gap: 7px;
+  .showcase-feature {
+    height: clamp(250px, 68vw, 380px);
   }
 
   .websites-grid {
